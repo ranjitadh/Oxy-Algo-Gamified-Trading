@@ -1,0 +1,267 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  EXPIRED
+}
+
+enum SubscriptionPlan {
+  FREE
+  BASIC
+  PRO
+  PREMIUM
+}
+
+enum CreditReason {
+  PURCHASE
+  ADMIN_GRANT
+  SUBSCRIPTION_BONUS
+  AI_MESSAGE
+  STRATEGY_ACTIVATION
+  ANALYSIS_RUN
+  REFUND
+}
+
+enum StrategyActivationStatus {
+  ACTIVE
+  PAUSED
+  INACTIVE
+}
+
+enum SignalStatus {
+  GOOD
+  NEUTRAL
+  AVOID
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ActionType {
+  SECURE_PROFITS
+  REDUCE_EXPOSURE
+  EXIT_CLEAN
+  PAUSE_SYSTEM
+  ACTIVATE_STRATEGY
+  DEACTIVATE_STRATEGY
+}
+
+enum ActionStatus {
+  QUEUED
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+enum TradeOutcome {
+  WIN
+  LOSS
+  BREAKEVEN
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  subscriptions      Subscription[]
+  creditLedger       CreditLedger[]
+  strategyActivations StrategyActivation[]
+  trades             Trade[]
+  actions            Action[]
+  chatThreads        ChatThread[]
+
+  @@map("users")
+}
+
+model Subscription {
+  id                  String             @id @default(uuid())
+  userId              String             @map("user_id")
+  status              SubscriptionStatus
+  plan                SubscriptionPlan
+  paypalSubscriptionId String?          @map("paypal_subscription_id")
+  currentPeriodEnd    DateTime?         @map("current_period_end")
+  createdAt           DateTime           @default(now()) @map("created_at")
+  updatedAt           DateTime           @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model CreditLedger {
+  id        String       @id @default(uuid())
+  userId    String       @map("user_id")
+  delta     Int          // positive for credits added, negative for credits consumed
+  reason    CreditReason
+  refType   String?      @map("ref_type") // e.g., "action", "subscription", "purchase"
+  refId     String?      @map("ref_id")
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("credit_ledger")
+}
+
+model Instrument {
+  id          String   @id @default(uuid())
+  symbol      String   @unique
+  displayName String   @map("display_name")
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  strategyActivations StrategyActivation[]
+  signals             SignalSnapshot[]
+  trades              Trade[]
+
+  @@map("instruments")
+}
+
+model Strategy {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  name        String
+  description String?
+  riskProfile String   @map("risk_profile") // LOW, MEDIUM, HIGH
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  activations StrategyActivation[]
+  trades      Trade[]
+
+  @@map("strategies")
+}
+
+model StrategyActivation {
+  id         String                    @id @default(uuid())
+  userId     String                    @map("user_id")
+  strategyId String                    @map("strategy_id")
+  instrumentId String?                 @map("instrument_id")
+  status     StrategyActivationStatus
+  createdAt  DateTime                  @default(now()) @map("created_at")
+  updatedAt  DateTime                  @updatedAt @map("updated_at")
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  strategy   Strategy   @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+  instrument Instrument? @relation(fields: [instrumentId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([strategyId])
+  @@map("strategy_activation")
+}
+
+model SignalSnapshot {
+  id                 String     @id @default(uuid())
+  instrumentId       String     @map("instrument_id")
+  confidence         Int        // 0-100
+  status             SignalStatus
+  risk               RiskLevel
+  activeStrategyName String?    @map("active_strategy_name")
+  timestamp          DateTime   @default(now())
+
+  instrument Instrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+
+  @@index([instrumentId])
+  @@index([timestamp])
+  @@map("signals_snapshot")
+}
+
+model Trade {
+  id             String       @id @default(uuid())
+  userId         String       @map("user_id")
+  instrumentId   String       @map("instrument_id")
+  strategyId     String?      @map("strategy_id")
+  openedAt       DateTime     @map("opened_at")
+  closedAt       DateTime?    @map("closed_at")
+  outcome        TradeOutcome
+  pnlPct         Float?       @map("pnl_pct")
+  beforeImageUrl String?     @map("before_image_url")
+  afterImageUrl  String?     @map("after_image_url")
+  aiSummary      String?     @map("ai_summary")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  instrument Instrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+  strategy   Strategy?  @relation(fields: [strategyId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([instrumentId])
+  @@index([openedAt])
+  @@map("trades")
+}
+
+model Action {
+  id             String       @id @default(uuid())
+  userId         String       @map("user_id")
+  type           ActionType
+  status         ActionStatus @default(QUEUED)
+  requestPayload Json?        @map("request_payload")
+  responsePayload Json?       @map("response_payload")
+  errorMessage   String?      @map("error_message")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("actions")
+}
+
+model ChatThread {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages ChatMessage[]
+
+  @@index([userId])
+  @@map("chat_threads")
+}
+
+model ChatMessage {
+  id         String   @id @default(uuid())
+  threadId   String   @map("thread_id")
+  role       String   // "user" | "assistant"
+  content    String
+  creditsCost Int?    @map("credits_cost")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  thread ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([threadId])
+  @@index([createdAt])
+  @@map("chat_messages")
+}
+
