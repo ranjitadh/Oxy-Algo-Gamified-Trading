@@ -1,0 +1,104 @@
+{
+  "workflows": [
+    {
+      "name": "Update Account Balance",
+      "description": "Updates account balance and equity from MT4/MT5 EA",
+      "nodes": [
+        {
+          "type": "n8n-nodes-base.webhook",
+          "name": "Webhook",
+          "parameters": {
+            "httpMethod": "POST",
+            "path": "account-update",
+            "responseMode": "responseNode"
+          }
+        },
+        {
+          "type": "n8n-nodes-base.httpRequest",
+          "name": "Update Account",
+          "parameters": {
+            "method": "POST",
+            "url": "={{$env.WEBHOOK_BASE_URL}}/api/webhooks/account",
+            "authentication": "genericCredentialType",
+            "genericAuthType": "httpHeaderAuth",
+            "sendHeaders": true,
+            "headerParameters": {
+              "parameters": [
+                {
+                  "name": "Authorization",
+                  "value": "=Bearer {{$env.WEBHOOK_SECRET}}"
+                }
+              ]
+            },
+            "sendBody": true,
+            "bodyParameters": {
+              "parameters": [
+                {
+                  "name": "user_id",
+                  "value": "={{$env.USER_ID}}"
+                },
+                {
+                  "name": "balance",
+                  "value": "={{$json.balance}}"
+                },
+                {
+                  "name": "equity",
+                  "value": "={{$json.equity}}"
+                },
+                {
+                  "name": "bot_status",
+                  "value": "={{$json.bot_status}}"
+                }
+              ]
+            },
+            "options": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create Trade",
+      "description": "Creates a new trade record",
+      "nodes": [
+        {
+          "type": "n8n-nodes-base.webhook",
+          "name": "Webhook",
+          "parameters": {
+            "httpMethod": "POST",
+            "path": "trade",
+            "responseMode": "responseNode"
+          }
+        },
+        {
+          "type": "n8n-nodes-base.httpRequest",
+          "name": "Create Trade",
+          "parameters": {
+            "method": "POST",
+            "url": "={{$env.WEBHOOK_BASE_URL}}/api/webhooks/trade",
+            "authentication": "genericCredentialType",
+            "genericAuthType": "httpHeaderAuth",
+            "sendHeaders": true,
+            "headerParameters": {
+              "parameters": [
+                {
+                  "name": "Authorization",
+                  "value": "=Bearer {{$env.WEBHOOK_SECRET}}"
+                }
+              ]
+            },
+            "sendBody": true,
+            "contentType": "json",
+            "body": "={\n  \"user_id\": \"{{$env.USER_ID}}\",\n  \"symbol\": \"{{$json.symbol}}\",\n  \"direction\": \"{{$json.direction}}\",\n  \"entry_price\": {{$json.entry_price}},\n  \"lot_size\": {{$json.lot_size || 0.01}},\n  \"status\": \"{{$json.status || 'OPEN'}}\",\n  \"profit\": {{$json.profit || 0}},\n  \"ai_comment\": \"{{$json.ai_comment || ''}}\"\n}"
+          }
+        }
+      ]
+    }
+  ],
+  "environment_variables": {
+    "WEBHOOK_BASE_URL": "http://localhost:3000",
+    "WEBHOOK_SECRET": "d4c63defd9d3a1b2ac42378b816b680058cf3ba4e904811e6cf2ea104eb213aa",
+    "USER_ID": "d60f254c-b41a-49c2-9788-12975c94f085"
+  }
+}
+
+

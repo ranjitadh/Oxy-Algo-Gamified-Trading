@@ -1,0 +1,204 @@
+{
+  "name": "MT4 Trade Alert Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mt4-trade",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "mt4-trade-webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "user_id",
+              "name": "user_id",
+              "value": "={{$env.USER_ID}}",
+              "type": "string"
+            },
+            {
+              "id": "symbol",
+              "name": "symbol",
+              "value": "={{$json.body.symbol}}",
+              "type": "string"
+            },
+            {
+              "id": "direction",
+              "name": "direction",
+              "value": "={{$json.body.signal}}",
+              "type": "string"
+            },
+            {
+              "id": "entry_price",
+              "name": "entry_price",
+              "value": "={{$json.body.entry_price || 0}}",
+              "type": "number"
+            },
+            {
+              "id": "lot_size",
+              "name": "lot_size",
+              "value": "={{$json.body.lot_size || 0.01}}",
+              "type": "number"
+            },
+            {
+              "id": "status",
+              "name": "status",
+              "value": "OPEN",
+              "type": "string"
+            },
+            {
+              "id": "ai_comment",
+              "name": "ai_comment",
+              "value": "MT4 Alert: {{$json.body.signal}} signal for {{$json.body.symbol}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "transform-data",
+      "name": "Transform Trade Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.WEBHOOK_BASE_URL}}/api/webhooks/trade",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.WEBHOOK_SECRET}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={\n  \"user_id\": \"{{$json.user_id}}\",\n  \"symbol\": \"{{$json.symbol}}\",\n  \"direction\": \"{{$json.direction}}\",\n  \"entry_price\": {{$json.entry_price}},\n  \"lot_size\": {{$json.lot_size}},\n  \"status\": \"{{$json.status}}\",\n  \"profit\": 0,\n  \"ai_comment\": \"{{$json.ai_comment}}\"\n}",
+        "options": {}
+      },
+      "id": "create-trade",
+      "name": "Create Trade",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.WEBHOOK_BASE_URL}}/api/webhooks/alert",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.WEBHOOK_SECRET}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={\n  \"user_id\": \"{{$env.USER_ID}}\",\n  \"title\": \"Trade Alert\",\n  \"message\": \"{{$('Transform Trade Data').item.json.symbol}} {{$('Transform Trade Data').item.json.direction}} signal received from MT4\",\n  \"alert_type\": \"SUCCESS\"\n}",
+        "options": {}
+      },
+      "id": "create-alert",
+      "name": "Create Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Trade processed successfully\",\n  \"trade_id\": \"{{$json.trade.id}}\"\n}",
+        "options": {}
+      },
+      "id": "respond",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Transform Trade Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Trade Data": {
+      "main": [
+        [
+          {
+            "node": "Create Trade",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Trade": {
+      "main": [
+        [
+          {
+            "node": "Create Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Alert": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+}
+
+
