@@ -257,3 +257,5 @@ All migrations are in `supabase/migrations/`. Run them in order:
 Proprietary - All rights reserved
 
 
+
+# n8n-webapp

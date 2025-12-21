@@ -10,3 +10,4 @@ ALTER PUBLICATION supabase_realtime ADD TABLE alerts;
 -- ALTER PUBLICATION supabase_realtime ADD TABLE screenshots;
 
 
+

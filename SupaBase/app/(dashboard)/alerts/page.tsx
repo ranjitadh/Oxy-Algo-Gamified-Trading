@@ -7,7 +7,7 @@ import { format } from 'date-fns'
 
 export default function AlertsPage() {
   const [user, setUser] = useState<any>(null)
-  const supabase = createClient()
+  const supabase = createClient() as any
 
   useEffect(() => {
     const getUser = async () => {
@@ -24,7 +24,7 @@ export default function AlertsPage() {
   const toggleSeen = async (alertId: string, currentSeen: boolean) => {
     await supabase
       .from('alerts')
-      .update({ seen: !currentSeen })
+      .update({ seen: !currentSeen } as any)
       .eq('id', alertId)
   }
 
@@ -34,7 +34,7 @@ export default function AlertsPage() {
 
     await supabase
       .from('alerts')
-      .update({ seen: true })
+      .update({ seen: true } as any)
       .in('id', unseenAlerts.map((a: any) => a.id))
   }
 
@@ -137,5 +137,6 @@ export default function AlertsPage() {
     </div>
   )
 }
+
 
 

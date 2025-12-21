@@ -5,7 +5,7 @@
 
 USER_ID="d60f254c-b41a-49c2-9788-12975c94f085"
 WEBHOOK_SECRET="d4c63defd9d3a1b2ac42378b816b680058cf3ba4e904811e6cf2ea104eb213aa"
-BASE_URL="http://localhost:3000"
+BASE_URL="https://task.oxyalgo.com/webhook/control-plane"
 
 echo "=== Testing n8n Webhook Endpoints ==="
 echo ""
@@ -69,5 +69,6 @@ curl -X POST ${BASE_URL}/api/webhooks/alert \
 echo ""
 echo "=== Tests Complete ==="
 echo "Check your dashboard to see the updates!"
+
 
 

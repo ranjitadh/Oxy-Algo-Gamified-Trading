@@ -16,7 +16,19 @@ export function createClient() {
             }
           })
         },
-        setAll(cookiesToSet) {
+        setAll(
+          cookiesToSet: {
+            name: string
+            value: string
+            options?: {
+              path?: string
+              maxAge?: number
+              domain?: string
+              secure?: boolean
+              sameSite?: 'lax' | 'strict' | 'none'
+            }
+          }[]
+        ) {
           cookiesToSet.forEach(({ name, value, options }) => {
             const cookieOptions = [
               `path=${options?.path || '/'}`,

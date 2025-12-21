@@ -85,3 +85,4 @@ echo "Email: $EMAIL"
 echo "You should see your account data on the dashboard!"
 
 
+

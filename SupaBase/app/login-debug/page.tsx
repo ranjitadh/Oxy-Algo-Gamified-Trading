@@ -112,7 +112,9 @@ export default function LoginDebugPage() {
           <h2 className="text-white font-bold mb-2">Debug Logs:</h2>
           <div className="bg-black p-4 rounded font-mono text-sm text-green-400 max-h-96 overflow-y-auto">
             {logs.length === 0 ? (
-              <div className="text-gray-500">No logs yet. Click "Test Login" to start.</div>
+              <div className="text-gray-500">
+                No logs yet. Click the Test Login button to start.
+              </div>
             ) : (
               logs.map((log, i) => (
                 <div key={i} className="mb-1">{log}</div>
@@ -124,5 +126,6 @@ export default function LoginDebugPage() {
     </div>
   )
 }
+
 
 
