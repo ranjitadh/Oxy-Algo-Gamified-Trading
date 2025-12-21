@@ -146,7 +146,7 @@ export default function DashboardPage() {
       </div>
 
       {accountLoading ? (
-        <Loading size="lg" message="Loading account data..." />
+        <Loading size="lg" variant="cube" message="Loading account data..." />
       ) : !account ? (
         <div className="glass-strong rounded-2xl p-6 border border-yellow-500/30 shadow-neon-green relative overflow-hidden">
           <div className="liquid-crystal absolute inset-0 opacity-20"></div>

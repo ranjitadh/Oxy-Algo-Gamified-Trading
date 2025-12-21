@@ -228,6 +228,196 @@ body {
   animation: float 20s ease-in-out infinite reverse;
 }
 
+/* Gaming Trading Platform Loader Animations */
+@keyframes rotate-cube-3d {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  25% {
+    transform: rotateX(90deg) rotateY(90deg);
+  }
+  50% {
+    transform: rotateX(180deg) rotateY(180deg);
+  }
+  75% {
+    transform: rotateX(270deg) rotateY(270deg);
+  }
+  100% {
+    transform: rotateX(360deg) rotateY(360deg);
+  }
+}
+
+@keyframes trading-bars {
+  0%, 100% {
+    transform: scaleY(0.3);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes chart-pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes orbit-rings {
+  0% {
+    transform: rotate(0deg) translateX(40px) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateX(40px) rotate(-360deg);
+  }
+}
+
+@keyframes trading-wave {
+  0%, 100% {
+    transform: translateY(0) scaleY(1);
+  }
+  50% {
+    transform: translateY(-10px) scaleY(1.2);
+  }
+}
+
+/* 3D Trading Cube Loader */
+.trading-cube-loader {
+  width: 60px;
+  height: 60px;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: rotate-cube-3d 2s infinite linear;
+}
+
+.trading-cube-loader .cube-face {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.trading-cube-loader .cube-face:nth-child(1) {
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 150, 255, 0.2));
+  border-color: #00ffff;
+  transform: rotateY(0deg) translateZ(30px);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+
+.trading-cube-loader .cube-face:nth-child(2) {
+  background: linear-gradient(135deg, rgba(176, 38, 255, 0.2), rgba(255, 0, 110, 0.2));
+  border-color: #b026ff;
+  transform: rotateY(90deg) translateZ(30px);
+  box-shadow: 0 0 20px rgba(176, 38, 255, 0.5);
+}
+
+.trading-cube-loader .cube-face:nth-child(3) {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 255, 255, 0.2));
+  border-color: #00ff88;
+  transform: rotateY(180deg) translateZ(30px);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+}
+
+.trading-cube-loader .cube-face:nth-child(4) {
+  background: linear-gradient(135deg, rgba(255, 0, 110, 0.2), rgba(176, 38, 255, 0.2));
+  border-color: #ff006e;
+  transform: rotateY(-90deg) translateZ(30px);
+  box-shadow: 0 0 20px rgba(255, 0, 110, 0.5);
+}
+
+.trading-cube-loader .cube-face:nth-child(5) {
+  background: linear-gradient(135deg, rgba(0, 150, 255, 0.2), rgba(0, 255, 255, 0.2));
+  border-color: #0096ff;
+  transform: rotateX(90deg) translateZ(30px);
+  box-shadow: 0 0 20px rgba(0, 150, 255, 0.5);
+}
+
+.trading-cube-loader .cube-face:nth-child(6) {
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 255, 136, 0.2));
+  border-color: #00ffff;
+  transform: rotateX(-90deg) translateZ(30px);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+
+/* Trading Bars Loader */
+.trading-bars-loader {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 40px;
+}
+
+.trading-bars-loader .bar {
+  width: 6px;
+  background: linear-gradient(to top, #00ffff, #b026ff);
+  border-radius: 2px;
+  animation: trading-bars 1.2s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.trading-bars-loader .bar:nth-child(1) { animation-delay: 0s; height: 30%; }
+.trading-bars-loader .bar:nth-child(2) { animation-delay: 0.1s; height: 50%; }
+.trading-bars-loader .bar:nth-child(3) { animation-delay: 0.2s; height: 70%; }
+.trading-bars-loader .bar:nth-child(4) { animation-delay: 0.3s; height: 100%; }
+.trading-bars-loader .bar:nth-child(5) { animation-delay: 0.4s; height: 80%; }
+.trading-bars-loader .bar:nth-child(6) { animation-delay: 0.5s; height: 60%; }
+.trading-bars-loader .bar:nth-child(7) { animation-delay: 0.6s; height: 40%; }
+
+/* Orbiting Rings Loader */
+.orbiting-rings-loader {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.orbiting-rings-loader .ring {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid;
+  animation: orbit-rings 2s linear infinite;
+}
+
+.orbiting-rings-loader .ring:nth-child(1) {
+  border-color: #00ffff;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+  animation-duration: 2s;
+}
+
+.orbiting-rings-loader .ring:nth-child(2) {
+  border-color: #b026ff;
+  box-shadow: 0 0 15px rgba(176, 38, 255, 0.8);
+  animation-duration: 1.5s;
+  animation-direction: reverse;
+  width: 15px;
+  height: 15px;
+  left: calc(50% - 7.5px);
+  top: calc(50% - 7.5px);
+}
+
+.orbiting-rings-loader .ring:nth-child(3) {
+  border-color: #ff006e;
+  box-shadow: 0 0 15px rgba(255, 0, 110, 0.8);
+  animation-duration: 1s;
+  width: 10px;
+  height: 10px;
+  left: calc(50% - 5px);
+  top: calc(50% - 5px);
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

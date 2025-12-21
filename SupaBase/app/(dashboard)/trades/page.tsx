@@ -63,7 +63,7 @@ export default function TradesPage() {
   }
 
   if (loading || !user) {
-    return <Loading size="lg" message="Loading trades..." />
+    return <Loading size="lg" variant="cube" message="Loading trades..." />
   }
 
   return (

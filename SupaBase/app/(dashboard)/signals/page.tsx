@@ -99,7 +99,7 @@ export default function SignalsPage() {
   }
 
   if (loading || !user) {
-    return <Loading size="lg" message="Loading signals..." />
+    return <Loading size="lg" variant="bars" message="Loading signals..." />
   }
 
   const filteredSignals = filter === 'ALL' ? signals : signals.filter((s) => s.signal_type === filter)

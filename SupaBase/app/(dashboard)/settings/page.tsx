@@ -200,7 +200,7 @@ export default function SettingsPage() {
   }
 
   if (accountLoading || !user) {
-    return <Loading size="lg" message="Loading settings..." />
+    return <Loading size="lg" variant="cube" message="Loading settings..." />
   }
 
   return (

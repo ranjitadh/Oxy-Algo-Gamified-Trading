@@ -77,7 +77,7 @@ export default function AlertsPage() {
   }
 
   if (loading || !user) {
-    return <Loading size="lg" message="Loading alerts..." />
+    return <Loading size="lg" variant="rings" message="Loading alerts..." />
   }
 
   const unseenCount = alerts.filter((a: any) => !a.seen).length

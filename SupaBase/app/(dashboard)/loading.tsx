@@ -11,8 +11,10 @@ export default function DashboardLoading() {
         </div>
       </div>
 
-      {/* Loading Spinner */}
-      <Loading size="lg" message="Loading dashboard..." />
+      {/* Gaming Trading Platform Loader */}
+      <div className="flex flex-col items-center justify-center py-20">
+        <Loading size="lg" variant="cube" message="Loading trading dashboard..." />
+      </div>
     </div>
   )
 }
