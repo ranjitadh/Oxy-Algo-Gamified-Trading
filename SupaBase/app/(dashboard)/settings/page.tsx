@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRealtimeAccount } from '@/hooks/useRealtimeAccount'
+import Loading from '@/components/Loading'
 
 export default function SettingsPage() {
   const [user, setUser] = useState<any>(null)
@@ -199,293 +200,406 @@ export default function SettingsPage() {
   }
 
   if (accountLoading || !user) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-gray-400">Loading settings...</div>
-      </div>
-    )
+    return <Loading size="lg" message="Loading settings..." />
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-white">Settings</h1>
-        <p className="mt-1 text-sm text-gray-400">Manage your account and preferences</p>
+    <div className="space-y-8 animate-fade-in">
+      {/* Header */}
+      <div className="relative">
+        <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-neon neon-text mb-2">
+          Settings
+        </h1>
+        <p className="text-gray-400 text-lg">Manage your account and preferences</p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Account Information</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={email}
-                disabled
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                User ID
-              </label>
-              <input
-                type="text"
-                value={user.id}
-                disabled
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white font-mono text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Account Created
-              </label>
-              <input
-                type="text"
-                value={new Date(user.created_at).toLocaleString()}
-                disabled
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Trading Agent Control</h2>
-          <form className="space-y-4" onSubmit={handleTradingControl}>
-            {tradingError && (
-              <div className="bg-red-900/50 border border-red-500 text-red-200 px-3 py-2 rounded text-sm">
-                {tradingError}
+        {/* Account Information Card */}
+        <div className="group relative glass-strong rounded-2xl p-6 border border-neon-cyan/30 shadow-neon-cyan hover:shadow-neon-cyan hover:border-neon-cyan transition-all duration-300 animate-fade-in overflow-hidden">
+          <div className="liquid-crystal absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"></div>
+          <div className="relative z-10">
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 rounded-xl bg-neon-cyan/20 flex items-center justify-center mr-4">
+                <span className="text-2xl">👤</span>
               </div>
-            )}
-            {tradingMessage && (
-              <div className="bg-green-900/40 border border-green-500 text-green-200 px-3 py-2 rounded text-sm">
-                {tradingMessage}
-              </div>
-            )}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Action
-              </label>
-              <div className="flex items-center space-x-4">
-                <label className="inline-flex items-center text-sm text-gray-300">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    checked={tradingAction === 'start'}
-                    onChange={() => setTradingAction('start')}
-                  />
-                  Start Trading Agent
-                </label>
-                <label className="inline-flex items-center text-sm text-gray-300">
-                  <input
-                    type="radio"
-                    className="mr-2"
-                    checked={tradingAction === 'stop'}
-                    onChange={() => setTradingAction('stop')}
-                  />
-                  Stop Trading Agent
-                </label>
-              </div>
+              <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-blue neon-text">
+                Account Information
+              </h2>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Symbols (optional)
-              </label>
-              <input
-                type="text"
-                value={tradingSymbols}
-                onChange={(e) => setTradingSymbols(e.target.value)}
-                placeholder="e.g. BTCUSDT, XAUUSD (comma separated)"
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400"
-              />
-              <p className="mt-1 text-xs text-gray-500">
-                Leave empty to control the global agent, or provide one or more symbols.
-              </p>
-            </div>
-            <button
-              type="submit"
-              disabled={tradingLoading}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 disabled:opacity-60"
-            >
-              {tradingLoading ? 'Sending command...' : 'Send Trading Command'}
-            </button>
-          </form>
-        </div>
-
-        <div className="bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Request Market Analysis</h2>
-          <form className="space-y-4" onSubmit={handleAnalysisRequest}>
-            {analysisError && (
-              <div className="bg-red-900/50 border border-red-500 text-red-200 px-3 py-2 rounded text-sm">
-                {analysisError}
-              </div>
-            )}
-            {analysisMessage && (
-              <div className="bg-green-900/40 border border-green-500 text-green-200 px-3 py-2 rounded text-sm">
-                {analysisMessage}
-              </div>
-            )}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Symbol
-              </label>
-              <input
-                type="text"
-                value={analysisSymbol}
-                onChange={(e) => setAnalysisSymbol(e.target.value)}
-                placeholder="e.g. BTCUSDT"
-                required
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Timeframe (optional)
-              </label>
-              <input
-                type="text"
-                value={analysisTimeframe}
-                onChange={(e) => setAnalysisTimeframe(e.target.value)}
-                placeholder="e.g. 1h, 4h, 1d"
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={analysisLoading}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 disabled:opacity-60"
-            >
-              {analysisLoading ? 'Requesting analysis...' : 'Request Analysis'}
-            </button>
-          </form>
-        </div>
-
-        <div className="bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Telegram AI Assistant</h2>
-          <form className="space-y-4" onSubmit={handleTelegramSend}>
-            {telegramError && (
-              <div className="bg-red-900/50 border border-red-500 text-red-200 px-3 py-2 rounded text-sm">
-                {telegramError}
-              </div>
-            )}
-            {telegramStatus && (
-              <div className="bg-green-900/40 border border-green-500 text-green-200 px-3 py-2 rounded text-sm">
-                {telegramStatus}
-              </div>
-            )}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Message
-              </label>
-              <textarea
-                value={telegramMessage}
-                onChange={(e) => setTelegramMessage(e.target.value)}
-                placeholder="Ask the Telegram assistant anything about your trading..."
-                required
-                rows={4}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Chat ID (optional)
-              </label>
-              <input
-                type="text"
-                value={telegramChatId}
-                onChange={(e) => setTelegramChatId(e.target.value)}
-                placeholder="Override default chat id if needed"
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={telegramLoading}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 disabled:opacity-60"
-            >
-              {telegramLoading ? 'Sending...' : 'Send to Telegram Assistant'}
-            </button>
-          </form>
-        </div>
-
-        <div className="bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Trading Bot Status</h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-300">Bot Status</span>
-              <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                account?.bot_status
-                  ? 'bg-green-900/50 text-green-300 border border-green-500'
-                  : 'bg-red-900/50 text-red-300 border border-red-500'
-              }`}>
-                {account?.bot_status ? 'ON' : 'OFF'}
-              </div>
-            </div>
-            <div className="text-sm text-gray-400">
-              Bot status is controlled via webhook from your trading system.
-              Contact your administrator to change this setting.
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Notification Preferences</h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="space-y-4">
               <div>
-                <label className="text-gray-300 font-medium">Email Notifications</label>
-                <p className="text-sm text-gray-400">Receive email alerts for important events</p>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  disabled
+                  className="w-full px-4 py-3 glass rounded-lg text-white border border-neon-cyan/20 focus:border-neon-cyan focus:shadow-neon-cyan transition-all duration-300 cursor-not-allowed"
+                />
               </div>
-              <input
-                type="checkbox"
-                checked={notifications.email}
-                onChange={(e) => setNotifications({ ...notifications, email: e.target.checked })}
-                className="w-5 h-5 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
-              />
-            </div>
-            <div className="flex items-center justify-between">
               <div>
-                <label className="text-gray-300 font-medium">In-App Alerts</label>
-                <p className="text-sm text-gray-400">Show alerts in the dashboard</p>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  User ID
+                </label>
+                <input
+                  type="text"
+                  value={user.id}
+                  disabled
+                  className="w-full px-4 py-3 glass rounded-lg text-white font-mono text-sm border border-neon-cyan/20 focus:border-neon-cyan focus:shadow-neon-cyan transition-all duration-300 cursor-not-allowed"
+                />
               </div>
-              <input
-                type="checkbox"
-                checked={notifications.alerts}
-                onChange={(e) => setNotifications({ ...notifications, alerts: e.target.checked })}
-                className="w-5 h-5 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Account Created
+                </label>
+                <input
+                  type="text"
+                  value={new Date(user.created_at).toLocaleString()}
+                  disabled
+                  className="w-full px-4 py-3 glass rounded-lg text-white border border-neon-cyan/20 focus:border-neon-cyan focus:shadow-neon-cyan transition-all duration-300 cursor-not-allowed"
+                />
+              </div>
             </div>
-            <button
-              onClick={handleUpdateNotifications}
-              className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700"
-            >
-              Save Preferences
-            </button>
           </div>
         </div>
 
-        <div className="bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Account Statistics</h2>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-400">Current Balance:</span>
-              <span className="text-white font-medium">
-                ${account?.balance?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
-              </span>
+        {/* Trading Agent Control Card */}
+        <div className="group relative glass-strong rounded-2xl p-6 border border-neon-purple/30 shadow-neon-purple hover:shadow-neon-purple hover:border-neon-purple transition-all duration-300 animate-fade-in-delay overflow-hidden">
+          <div className="liquid-crystal absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"></div>
+          <div className="relative z-10">
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 rounded-xl bg-neon-purple/20 flex items-center justify-center mr-4">
+                <span className="text-2xl">🤖</span>
+              </div>
+              <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-neon-purple to-neon-pink neon-text">
+                Trading Agent Control
+              </h2>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">Current Equity:</span>
-              <span className="text-white font-medium">
-                ${account?.equity?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
-              </span>
+            <form className="space-y-4" onSubmit={handleTradingControl}>
+              {tradingError && (
+                <div className="glass rounded-lg p-3 border border-red-500/50 text-red-300 neon-text text-sm bg-red-900/20">
+                  {tradingError}
+                </div>
+              )}
+              {tradingMessage && (
+                <div className="glass rounded-lg p-3 border border-neon-green/50 text-neon-green neon-text text-sm bg-green-900/20">
+                  {tradingMessage}
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-3">
+                  Action
+                </label>
+                <div className="flex items-center space-x-6">
+                  <label className="inline-flex items-center group cursor-pointer">
+                    <input
+                      type="radio"
+                      className="w-5 h-5 text-neon-cyan bg-gray-700 border-gray-600 focus:ring-neon-cyan focus:ring-2 cursor-pointer"
+                      checked={tradingAction === 'start'}
+                      onChange={() => setTradingAction('start')}
+                    />
+                    <span className="ml-3 text-gray-300 group-hover:text-neon-cyan transition-colors">Start Trading Agent</span>
+                  </label>
+                  <label className="inline-flex items-center group cursor-pointer">
+                    <input
+                      type="radio"
+                      className="w-5 h-5 text-neon-purple bg-gray-700 border-gray-600 focus:ring-neon-purple focus:ring-2 cursor-pointer"
+                      checked={tradingAction === 'stop'}
+                      onChange={() => setTradingAction('stop')}
+                    />
+                    <span className="ml-3 text-gray-300 group-hover:text-neon-purple transition-colors">Stop Trading Agent</span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Symbols (optional)
+                </label>
+                <input
+                  type="text"
+                  value={tradingSymbols}
+                  onChange={(e) => setTradingSymbols(e.target.value)}
+                  placeholder="e.g. BTCUSDT, XAUUSD (comma separated)"
+                  className="w-full px-4 py-3 glass rounded-lg text-white placeholder-gray-500 border border-neon-purple/20 focus:border-neon-purple focus:shadow-neon-purple focus:outline-none transition-all duration-300"
+                />
+                <p className="mt-2 text-xs text-gray-500">
+                  Leave empty to control the global agent, or provide one or more symbols.
+                </p>
+              </div>
+              <button
+                type="submit"
+                disabled={tradingLoading}
+                className="w-full px-4 py-3 bg-gradient-to-r from-neon-purple to-neon-pink text-white rounded-lg font-bold hover:shadow-neon-purple disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-300 relative overflow-hidden group shadow-lg"
+              >
+                <span className="relative z-10 flex items-center justify-center text-white font-bold drop-shadow-[0_0_8px_rgba(176,38,255,0.8)]">
+                  {tradingLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/50 border-t-white rounded-full animate-spin mr-2"></div>
+                      Sending command...
+                    </>
+                  ) : (
+                    'Send Trading Command'
+                  )}
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-neon-pink to-neon-purple opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Request Market Analysis Card */}
+        <div className="group relative glass-strong rounded-2xl p-6 border border-neon-blue/30 shadow-neon-blue hover:shadow-neon-blue hover:border-neon-blue transition-all duration-300 animate-fade-in-delay overflow-hidden" style={{ animationDelay: '0.4s' }}>
+          <div className="liquid-crystal absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"></div>
+          <div className="relative z-10">
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 rounded-xl bg-neon-blue/20 flex items-center justify-center mr-4">
+                <span className="text-2xl">📊</span>
+              </div>
+              <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-cyan neon-text">
+                Request Market Analysis
+              </h2>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">Account ID:</span>
-              <span className="text-white font-mono text-sm">{account?.id}</span>
+            <form className="space-y-4" onSubmit={handleAnalysisRequest}>
+              {analysisError && (
+                <div className="glass rounded-lg p-3 border border-red-500/50 text-red-300 neon-text text-sm bg-red-900/20">
+                  {analysisError}
+                </div>
+              )}
+              {analysisMessage && (
+                <div className="glass rounded-lg p-3 border border-neon-green/50 text-neon-green neon-text text-sm bg-green-900/20">
+                  {analysisMessage}
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Symbol
+                </label>
+                <input
+                  type="text"
+                  value={analysisSymbol}
+                  onChange={(e) => setAnalysisSymbol(e.target.value)}
+                  placeholder="e.g. BTCUSDT"
+                  required
+                  className="w-full px-4 py-3 glass rounded-lg text-white placeholder-gray-500 border border-neon-blue/20 focus:border-neon-blue focus:shadow-neon-blue focus:outline-none transition-all duration-300"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Timeframe (optional)
+                </label>
+                <input
+                  type="text"
+                  value={analysisTimeframe}
+                  onChange={(e) => setAnalysisTimeframe(e.target.value)}
+                  placeholder="e.g. 1h, 4h, 1d"
+                  className="w-full px-4 py-3 glass rounded-lg text-white placeholder-gray-500 border border-neon-blue/20 focus:border-neon-blue focus:shadow-neon-blue focus:outline-none transition-all duration-300"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={analysisLoading}
+                className="w-full px-4 py-3 bg-gradient-to-r from-neon-blue to-neon-cyan text-white rounded-lg font-bold hover:shadow-neon-blue disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-300 relative overflow-hidden group shadow-lg"
+              >
+                <span className="relative z-10 flex items-center justify-center text-white font-bold drop-shadow-[0_0_8px_rgba(0,150,255,0.8)]">
+                  {analysisLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/50 border-t-white rounded-full animate-spin mr-2"></div>
+                      Requesting analysis...
+                    </>
+                  ) : (
+                    'Request Analysis'
+                  )}
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan to-neon-blue opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Telegram AI Assistant Card */}
+        <div className="group relative glass-strong rounded-2xl p-6 border border-neon-green/30 shadow-neon-green hover:shadow-neon-green hover:border-neon-green transition-all duration-300 animate-fade-in-delay overflow-hidden" style={{ animationDelay: '0.6s' }}>
+          <div className="liquid-crystal absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"></div>
+          <div className="relative z-10">
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 rounded-xl bg-neon-green/20 flex items-center justify-center mr-4">
+                <span className="text-2xl">💬</span>
+              </div>
+              <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-neon-green to-neon-cyan neon-text">
+                Telegram AI Assistant
+              </h2>
+            </div>
+            <form className="space-y-4" onSubmit={handleTelegramSend}>
+              {telegramError && (
+                <div className="glass rounded-lg p-3 border border-red-500/50 text-red-300 neon-text text-sm bg-red-900/20">
+                  {telegramError}
+                </div>
+              )}
+              {telegramStatus && (
+                <div className="glass rounded-lg p-3 border border-neon-green/50 text-neon-green neon-text text-sm bg-green-900/20">
+                  {telegramStatus}
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Message
+                </label>
+                <textarea
+                  value={telegramMessage}
+                  onChange={(e) => setTelegramMessage(e.target.value)}
+                  placeholder="Ask the Telegram assistant anything about your trading..."
+                  required
+                  rows={4}
+                  className="w-full px-4 py-3 glass rounded-lg text-white placeholder-gray-500 border border-neon-green/20 focus:border-neon-green focus:shadow-neon-green focus:outline-none transition-all duration-300 resize-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Chat ID (optional)
+                </label>
+                <input
+                  type="text"
+                  value={telegramChatId}
+                  onChange={(e) => setTelegramChatId(e.target.value)}
+                  placeholder="Override default chat id if needed"
+                  className="w-full px-4 py-3 glass rounded-lg text-white placeholder-gray-500 border border-neon-green/20 focus:border-neon-green focus:shadow-neon-green focus:outline-none transition-all duration-300"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={telegramLoading}
+                className="w-full px-4 py-3 bg-gradient-to-r from-neon-green to-neon-cyan text-white rounded-lg font-bold hover:shadow-neon-green disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-300 relative overflow-hidden group shadow-lg"
+              >
+                <span className="relative z-10 flex items-center justify-center text-white font-bold drop-shadow-[0_0_8px_rgba(0,255,136,0.8)]">
+                  {telegramLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/50 border-t-white rounded-full animate-spin mr-2"></div>
+                      Sending...
+                    </>
+                  ) : (
+                    'Send to Telegram Assistant'
+                  )}
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan to-neon-green opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Trading Bot Status Card */}
+        <div className="group relative glass-strong rounded-2xl p-6 border border-neon-pink/30 shadow-neon-pink hover:shadow-neon-pink hover:border-neon-pink transition-all duration-300 animate-fade-in-delay overflow-hidden" style={{ animationDelay: '0.8s' }}>
+          <div className="liquid-crystal absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"></div>
+          <div className="relative z-10">
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 rounded-xl bg-neon-pink/20 flex items-center justify-center mr-4">
+                <span className="text-2xl">⚡</span>
+              </div>
+              <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-neon-pink to-neon-purple neon-text">
+                Trading Bot Status
+              </h2>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 glass rounded-lg border border-neon-pink/20">
+                <span className="text-gray-300 font-medium">Bot Status</span>
+                <div className={`px-4 py-2 rounded-full text-sm font-bold neon-text animate-glow ${
+                  account?.bot_status
+                    ? 'bg-green-900/30 text-neon-green border border-neon-green shadow-neon-green'
+                    : 'bg-red-900/30 text-red-400 border border-red-500/50 shadow-neon-pink'
+                }`}>
+                  {account?.bot_status ? 'ONLINE' : 'OFFLINE'}
+                </div>
+              </div>
+              <div className="text-sm text-gray-400 p-4 glass rounded-lg border border-gray-700/30">
+                Bot status is controlled via webhook from your trading system.
+                Contact your administrator to change this setting.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Notification Preferences Card */}
+        <div className="group relative glass-strong rounded-2xl p-6 border border-neon-cyan/30 shadow-neon-cyan hover:shadow-neon-cyan hover:border-neon-cyan transition-all duration-300 animate-fade-in-delay overflow-hidden" style={{ animationDelay: '1s' }}>
+          <div className="liquid-crystal absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"></div>
+          <div className="relative z-10">
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 rounded-xl bg-neon-cyan/20 flex items-center justify-center mr-4">
+                <span className="text-2xl">🔔</span>
+              </div>
+              <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-blue neon-text">
+                Notification Preferences
+              </h2>
+            </div>
+            <div className="space-y-5">
+              <div className="flex items-center justify-between p-4 glass rounded-lg border border-neon-cyan/20 hover:border-neon-cyan/40 transition-all duration-300">
+                <div>
+                  <label className="text-gray-300 font-medium block mb-1">Email Notifications</label>
+                  <p className="text-sm text-gray-400">Receive email alerts for important events</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={notifications.email}
+                    onChange={(e) => setNotifications({ ...notifications, email: e.target.checked })}
+                    className="sr-only peer"
+                  />
+                  <div className="w-14 h-7 bg-gray-700 border border-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-neon-cyan/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:shadow-neon-cyan after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-400 after:border-2 after:rounded-full after:h-6 after:w-6 after:transition-all after:shadow-lg peer-checked:bg-gradient-to-r peer-checked:from-neon-cyan peer-checked:to-neon-blue peer-checked:border-neon-cyan"></div>
+                </label>
+              </div>
+              <div className="flex items-center justify-between p-4 glass rounded-lg border border-neon-cyan/20 hover:border-neon-cyan/40 transition-all duration-300">
+                <div>
+                  <label className="text-gray-300 font-medium block mb-1">In-App Alerts</label>
+                  <p className="text-sm text-gray-400">Show alerts in the dashboard</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={notifications.alerts}
+                    onChange={(e) => setNotifications({ ...notifications, alerts: e.target.checked })}
+                    className="sr-only peer"
+                  />
+                  <div className="w-14 h-7 bg-gray-700 border border-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-neon-cyan/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:shadow-neon-cyan after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-400 after:border-2 after:rounded-full after:h-6 after:w-6 after:transition-all after:shadow-lg peer-checked:bg-gradient-to-r peer-checked:from-neon-cyan peer-checked:to-neon-blue peer-checked:border-neon-cyan"></div>
+                </label>
+              </div>
+              <button
+                onClick={handleUpdateNotifications}
+                className="w-full mt-4 px-4 py-3 bg-gradient-to-r from-neon-cyan to-neon-blue text-white rounded-lg font-bold hover:shadow-neon-cyan transition-all duration-300 relative overflow-hidden group shadow-lg"
+              >
+                <span className="relative z-10 text-white font-bold drop-shadow-[0_0_8px_rgba(0,255,255,0.8)]">Save Preferences</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-neon-blue to-neon-cyan opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Account Statistics Card */}
+        <div className="group relative glass-strong rounded-2xl p-6 border border-neon-purple/30 shadow-neon-purple hover:shadow-neon-purple hover:border-neon-purple transition-all duration-300 animate-fade-in-delay overflow-hidden" style={{ animationDelay: '1.2s' }}>
+          <div className="liquid-crystal absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"></div>
+          <div className="relative z-10">
+            <div className="flex items-center mb-6">
+              <div className="w-12 h-12 rounded-xl bg-neon-purple/20 flex items-center justify-center mr-4">
+                <span className="text-2xl">📈</span>
+              </div>
+              <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-neon-purple to-neon-pink neon-text">
+                Account Statistics
+              </h2>
+            </div>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center p-4 glass rounded-lg border border-neon-purple/20 hover:border-neon-purple/40 transition-all duration-300">
+                <span className="text-gray-400 font-medium">Current Balance:</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-blue font-bold text-lg neon-text">
+                  ${account?.balance?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+                </span>
+              </div>
+              <div className="flex justify-between items-center p-4 glass rounded-lg border border-neon-purple/20 hover:border-neon-purple/40 transition-all duration-300">
+                <span className="text-gray-400 font-medium">Current Equity:</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-green to-neon-cyan font-bold text-lg neon-text">
+                  ${account?.equity?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+                </span>
+              </div>
+              <div className="flex justify-between items-center p-4 glass rounded-lg border border-neon-purple/20 hover:border-neon-purple/40 transition-all duration-300">
+                <span className="text-gray-400 font-medium">Account ID:</span>
+                <span className="text-white font-mono text-sm">{account?.id}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -493,6 +607,3 @@ export default function SettingsPage() {
     </div>
   )
 }
-
-
-

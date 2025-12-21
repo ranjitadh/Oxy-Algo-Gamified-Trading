@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRealtimeAccount } from '@/hooks/useRealtimeAccount'
 import { useRealtimeTrades } from '@/hooks/useRealtimeTrades'
+import Loading from '@/components/Loading'
 import {
   LineChart,
   Line,
@@ -34,7 +35,6 @@ export default function DashboardPage() {
         
         if (error) {
           console.error('Error getting user:', error)
-          // Redirect to login if no user
           window.location.href = '/login'
           return
         }
@@ -98,7 +98,10 @@ export default function DashboardPage() {
   if (userLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-400">Loading...</div>
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-neon-cyan/30 border-t-neon-cyan rounded-full animate-spin"></div>
+          <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-neon-purple rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1s' }}></div>
+        </div>
       </div>
     )
   }
@@ -106,9 +109,9 @@ export default function DashboardPage() {
   if (!user) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="text-red-400 mb-4">Not authenticated</div>
-          <a href="/login" className="text-blue-400 hover:text-blue-300 underline">
+        <div className="text-center glass-strong rounded-2xl p-8 border border-red-500/30">
+          <div className="text-red-400 neon-text mb-4 text-xl">Not authenticated</div>
+          <a href="/login" className="text-neon-cyan hover:text-neon-blue underline transition-colors">
             Go to login
           </a>
         </div>
@@ -124,167 +127,249 @@ export default function DashboardPage() {
 
   const totalProfit = closedTrades.reduce((sum: number, t: any) => sum + (t.profit || 0), 0)
 
+  // Custom chart colors with neon theme
+  const chartColors = {
+    equity: '#00ffff',
+    balance: '#00ff88',
+    profit: '#b026ff',
+  }
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-400">Real-time trading overview</p>
-        <p className="mt-1 text-xs text-gray-500">Logged in as: {user?.email}</p>
+    <div className="space-y-8 animate-fade-in">
+      {/* Header */}
+      <div className="relative">
+        <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-neon neon-text mb-2">
+          Dashboard
+        </h1>
+        <p className="text-gray-400 text-lg">Real-time trading overview</p>
+        <p className="text-gray-500 text-sm mt-1">Logged in as: {user?.email}</p>
       </div>
 
       {accountLoading ? (
-        <div className="flex items-center justify-center h-32">
-          <div className="text-gray-400">Loading account data...</div>
-        </div>
+        <Loading size="lg" message="Loading account data..." />
       ) : !account ? (
-        <div className="bg-yellow-900/50 border border-yellow-500 rounded-lg p-4">
-          <p className="text-yellow-200 mb-2">Account record not found</p>
-          <p className="text-yellow-300 text-sm">
-            Your account is being created. This may take a few moments. Please refresh the page.
-          </p>
+        <div className="glass-strong rounded-2xl p-6 border border-yellow-500/30 shadow-neon-green relative overflow-hidden">
+          <div className="liquid-crystal absolute inset-0 opacity-20"></div>
+          <div className="relative z-10">
+            <p className="text-yellow-300 neon-text mb-2 text-lg font-semibold">Account record not found</p>
+            <p className="text-yellow-400 text-sm">
+              Your account is being created. This may take a few moments. Please refresh the page.
+            </p>
+          </div>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="bg-gray-800 rounded-lg shadow p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="text-2xl font-bold text-white">
-                    ${account?.balance?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Balance Card */}
+            <div className="group relative glass-strong rounded-2xl p-6 border border-neon-cyan/30 shadow-neon-cyan hover:shadow-neon-cyan hover:border-neon-cyan transition-all duration-300 animate-fade-in overflow-hidden">
+              <div className="liquid-crystal absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-gray-400 text-sm font-medium">Balance</div>
+                  <div className="w-10 h-10 rounded-lg bg-neon-cyan/20 flex items-center justify-center">
+                    <span className="text-neon-cyan text-xl">💰</span>
                   </div>
-                  <div className="mt-1 text-sm text-gray-400">Balance</div>
+                </div>
+                <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-blue neon-text">
+                  ${account?.balance?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
                 </div>
               </div>
             </div>
 
-            <div className="bg-gray-800 rounded-lg shadow p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="text-2xl font-bold text-white">
-                    ${account?.equity?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+            {/* Equity Card */}
+            <div className="group relative glass-strong rounded-2xl p-6 border border-neon-green/30 shadow-neon-green hover:shadow-neon-green hover:border-neon-green transition-all duration-300 animate-fade-in-delay overflow-hidden">
+              <div className="liquid-crystal absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-gray-400 text-sm font-medium">Equity</div>
+                  <div className="w-10 h-10 rounded-lg bg-neon-green/20 flex items-center justify-center">
+                    <span className="text-neon-green text-xl">📈</span>
                   </div>
-                  <div className="mt-1 text-sm text-gray-400">Equity</div>
+                </div>
+                <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-green to-neon-cyan neon-text">
+                  ${account?.equity?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
                 </div>
               </div>
             </div>
 
-            <div className="bg-gray-800 rounded-lg shadow p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="text-2xl font-bold text-white">{winRate}%</div>
-                  <div className="mt-1 text-sm text-gray-400">Win Rate</div>
+            {/* Win Rate Card */}
+            <div className="group relative glass-strong rounded-2xl p-6 border border-neon-purple/30 shadow-neon-purple hover:shadow-neon-purple hover:border-neon-purple transition-all duration-300 animate-fade-in-delay overflow-hidden" style={{ animationDelay: '0.4s' }}>
+              <div className="liquid-crystal absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-gray-400 text-sm font-medium">Win Rate</div>
+                  <div className="w-10 h-10 rounded-lg bg-neon-purple/20 flex items-center justify-center">
+                    <span className="text-neon-purple text-xl">🎯</span>
+                  </div>
+                </div>
+                <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-purple to-neon-pink neon-text">
+                  {winRate}%
                 </div>
               </div>
             </div>
 
-            <div className="bg-gray-800 rounded-lg shadow p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="text-2xl font-bold text-white">{openTrades.length}</div>
-                  <div className="mt-1 text-sm text-gray-400">Open Trades</div>
+            {/* Open Trades Card */}
+            <div className="group relative glass-strong rounded-2xl p-6 border border-neon-pink/30 shadow-neon-pink hover:shadow-neon-pink hover:border-neon-pink transition-all duration-300 animate-fade-in-delay overflow-hidden" style={{ animationDelay: '0.6s' }}>
+              <div className="liquid-crystal absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-gray-400 text-sm font-medium">Open Trades</div>
+                  <div className="w-10 h-10 rounded-lg bg-neon-pink/20 flex items-center justify-center">
+                    <span className="text-neon-pink text-xl">⚡</span>
+                  </div>
+                </div>
+                <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-pink to-neon-purple neon-text">
+                  {openTrades.length}
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            <div className="bg-gray-800 rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">Equity & Balance</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={equityHistory}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="time" stroke="#9ca3af" />
-                  <YAxis stroke="#9ca3af" />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '6px' }}
-                    labelStyle={{ color: '#f3f4f6' }}
-                  />
-                  <Legend />
-                  <Area
-                    type="monotone"
-                    dataKey="equity"
-                    stroke="#3b82f6"
-                    fill="#3b82f6"
-                    fillOpacity={0.3}
-                    name="Equity"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="balance"
-                    stroke="#10b981"
-                    fill="#10b981"
-                    fillOpacity={0.3}
-                    name="Balance"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+          {/* Charts */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {/* Equity & Balance Chart */}
+            <div className="glass-strong rounded-2xl p-6 border border-neon-cyan/20 shadow-glow-lg hover:border-neon-cyan/40 transition-all duration-300 relative overflow-hidden">
+              <div className="liquid-crystal absolute inset-0 opacity-5"></div>
+              <div className="relative z-10">
+                <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-blue mb-4 neon-text">
+                  Equity & Balance
+                </h2>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={equityHistory}>
+                    <defs>
+                      <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={chartColors.equity} stopOpacity={0.5}/>
+                        <stop offset="95%" stopColor={chartColors.equity} stopOpacity={0}/>
+                      </linearGradient>
+                      <linearGradient id="balanceGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={chartColors.balance} stopOpacity={0.5}/>
+                        <stop offset="95%" stopColor={chartColors.balance} stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+                    <XAxis dataKey="time" stroke="#9ca3af" fontSize={12} />
+                    <YAxis stroke="#9ca3af" fontSize={12} />
+                    <Tooltip
+                      contentStyle={{ 
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)', 
+                        border: '1px solid rgba(0, 255, 255, 0.3)', 
+                        borderRadius: '8px',
+                        backdropFilter: 'blur(10px)'
+                      }}
+                      labelStyle={{ color: '#00ffff', fontWeight: 'bold' }}
+                    />
+                    <Legend wrapperStyle={{ color: '#9ca3af' }} />
+                    <Area
+                      type="monotone"
+                      dataKey="equity"
+                      stroke={chartColors.equity}
+                      fill="url(#equityGradient)"
+                      strokeWidth={2}
+                      name="Equity"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="balance"
+                      stroke={chartColors.balance}
+                      fill="url(#balanceGradient)"
+                      strokeWidth={2}
+                      name="Balance"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
-            <div className="bg-gray-800 rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">Profit</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={profitHistory}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="time" stroke="#9ca3af" />
-                  <YAxis stroke="#9ca3af" />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '6px' }}
-                    labelStyle={{ color: '#f3f4f6' }}
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="profit"
-                    stroke="#10b981"
-                    strokeWidth={2}
-                    name="Profit"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+            {/* Profit Chart */}
+            <div className="glass-strong rounded-2xl p-6 border border-neon-purple/20 shadow-glow-lg hover:border-neon-purple/40 transition-all duration-300 relative overflow-hidden">
+              <div className="liquid-crystal absolute inset-0 opacity-5"></div>
+              <div className="relative z-10">
+                <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-neon-purple to-neon-pink mb-4 neon-text">
+                  Profit
+                </h2>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={profitHistory}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+                    <XAxis dataKey="time" stroke="#9ca3af" fontSize={12} />
+                    <YAxis stroke="#9ca3af" fontSize={12} />
+                    <Tooltip
+                      contentStyle={{ 
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)', 
+                        border: '1px solid rgba(176, 38, 255, 0.3)', 
+                        borderRadius: '8px',
+                        backdropFilter: 'blur(10px)'
+                      }}
+                      labelStyle={{ color: '#b026ff', fontWeight: 'bold' }}
+                    />
+                    <Legend wrapperStyle={{ color: '#9ca3af' }} />
+                    <Line
+                      type="monotone"
+                      dataKey="profit"
+                      stroke={chartColors.profit}
+                      strokeWidth={3}
+                      dot={{ fill: chartColors.profit, r: 4 }}
+                      activeDot={{ r: 6, fill: chartColors.profit }}
+                      name="Profit"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            <div className="bg-gray-800 rounded-lg shadow p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-white">Bot Status</h2>
-                <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  account?.bot_status
-                    ? 'bg-green-900/50 text-green-300 border border-green-500'
-                    : 'bg-red-900/50 text-red-300 border border-red-500'
-                }`}>
-                  {account?.bot_status ? 'ON' : 'OFF'}
+          {/* Status Cards */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {/* Bot Status */}
+            <div className="glass-strong rounded-2xl p-6 border border-neon-green/20 shadow-glow-lg hover:border-neon-green/40 transition-all duration-300 relative overflow-hidden">
+              <div className="liquid-crystal absolute inset-0 opacity-5"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-neon-green to-neon-cyan neon-text">
+                    Bot Status
+                  </h2>
+                  <div className={`px-4 py-2 rounded-full text-sm font-bold neon-text animate-glow ${
+                    account?.bot_status
+                      ? 'bg-green-900/30 text-neon-green border border-neon-green shadow-neon-green'
+                      : 'bg-red-900/30 text-red-400 border border-red-500/50 shadow-neon-pink'
+                  }`}>
+                    {account?.bot_status ? 'ONLINE' : 'OFFLINE'}
+                  </div>
                 </div>
-              </div>
-              <div className="text-sm text-gray-400">
-                {account?.bot_status
-                  ? 'Trading bot is active and monitoring markets'
-                  : 'Trading bot is currently disabled'}
+                <div className="text-gray-300 text-sm">
+                  {account?.bot_status
+                    ? '🤖 Trading bot is active and monitoring markets'
+                    : '⚠️ Trading bot is currently disabled'}
+                </div>
               </div>
             </div>
 
-            <div className="bg-gray-800 rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">Trade Summary</h2>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Total Trades:</span>
-                  <span className="text-white font-medium">{closedTrades.length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Winning Trades:</span>
-                  <span className="text-green-400 font-medium">{winningTrades.length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Losing Trades:</span>
-                  <span className="text-red-400 font-medium">
-                    {closedTrades.length - winningTrades.length}
-                  </span>
-                </div>
-                <div className="flex justify-between pt-2 border-t border-gray-700">
-                  <span className="text-gray-400">Total Profit:</span>
-                  <span className={`font-medium ${totalProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    ${totalProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
+            {/* Trade Summary */}
+            <div className="glass-strong rounded-2xl p-6 border border-neon-blue/20 shadow-glow-lg hover:border-neon-blue/40 transition-all duration-300 relative overflow-hidden">
+              <div className="liquid-crystal absolute inset-0 opacity-5"></div>
+              <div className="relative z-10">
+                <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-cyan mb-4 neon-text">
+                  Trade Summary
+                </h2>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between items-center py-2 border-b border-gray-700/50">
+                    <span className="text-gray-400">Total Trades:</span>
+                    <span className="text-white font-bold text-lg">{closedTrades.length}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-700/50">
+                    <span className="text-gray-400">Winning Trades:</span>
+                    <span className="text-neon-green font-bold text-lg neon-text">{winningTrades.length}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-700/50">
+                    <span className="text-gray-400">Losing Trades:</span>
+                    <span className="text-red-400 font-bold text-lg">{closedTrades.length - winningTrades.length}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t-2 border-neon-purple/30">
+                    <span className="text-gray-300 font-semibold">Total Profit:</span>
+                    <span className={`font-bold text-xl neon-text ${totalProfit >= 0 ? 'text-neon-green' : 'text-red-400'}`}>
+                      ${totalProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
