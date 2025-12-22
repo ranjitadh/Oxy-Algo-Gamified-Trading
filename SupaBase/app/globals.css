@@ -228,6 +228,14 @@ body {
   animation: float 20s ease-in-out infinite reverse;
 }
 
+/* Signal summary clamp for equal card heights */
+.signal-summary {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* Gaming Trading Platform Loader Animations */
 @keyframes rotate-cube-3d {
   0% {
@@ -313,42 +321,42 @@ body {
   background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 150, 255, 0.2));
   border-color: #00ffff;
   transform: rotateY(0deg) translateZ(30px);
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 16px rgba(0, 255, 255, 0.2);
 }
 
 .trading-cube-loader .cube-face:nth-child(2) {
   background: linear-gradient(135deg, rgba(176, 38, 255, 0.2), rgba(255, 0, 110, 0.2));
   border-color: #b026ff;
   transform: rotateY(90deg) translateZ(30px);
-  box-shadow: 0 0 20px rgba(176, 38, 255, 0.5);
+  box-shadow: 0 0 16px rgba(176, 38, 255, 0.2);
 }
 
 .trading-cube-loader .cube-face:nth-child(3) {
   background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 255, 255, 0.2));
   border-color: #00ff88;
   transform: rotateY(180deg) translateZ(30px);
-  box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+  box-shadow: 0 0 16px rgba(0, 255, 136, 0.2);
 }
 
 .trading-cube-loader .cube-face:nth-child(4) {
   background: linear-gradient(135deg, rgba(255, 0, 110, 0.2), rgba(176, 38, 255, 0.2));
   border-color: #ff006e;
   transform: rotateY(-90deg) translateZ(30px);
-  box-shadow: 0 0 20px rgba(255, 0, 110, 0.5);
+  box-shadow: 0 0 16px rgba(255, 0, 110, 0.2);
 }
 
 .trading-cube-loader .cube-face:nth-child(5) {
   background: linear-gradient(135deg, rgba(0, 150, 255, 0.2), rgba(0, 255, 255, 0.2));
   border-color: #0096ff;
   transform: rotateX(90deg) translateZ(30px);
-  box-shadow: 0 0 20px rgba(0, 150, 255, 0.5);
+  box-shadow: 0 0 16px rgba(0, 150, 255, 0.2);
 }
 
 .trading-cube-loader .cube-face:nth-child(6) {
   background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 255, 136, 0.2));
   border-color: #00ffff;
   transform: rotateX(-90deg) translateZ(30px);
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 16px rgba(0, 255, 255, 0.2);
 }
 
 /* Trading Bars Loader */
@@ -364,7 +372,7 @@ body {
   background: linear-gradient(to top, #00ffff, #b026ff);
   border-radius: 2px;
   animation: trading-bars 1.2s ease-in-out infinite;
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.2);
 }
 
 .trading-bars-loader .bar:nth-child(1) { animation-delay: 0s; height: 30%; }
@@ -393,13 +401,13 @@ body {
 
 .orbiting-rings-loader .ring:nth-child(1) {
   border-color: #00ffff;
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.32);
   animation-duration: 2s;
 }
 
 .orbiting-rings-loader .ring:nth-child(2) {
   border-color: #b026ff;
-  box-shadow: 0 0 15px rgba(176, 38, 255, 0.8);
+  box-shadow: 0 0 12px rgba(176, 38, 255, 0.32);
   animation-duration: 1.5s;
   animation-direction: reverse;
   width: 15px;
@@ -410,7 +418,7 @@ body {
 
 .orbiting-rings-loader .ring:nth-child(3) {
   border-color: #ff006e;
-  box-shadow: 0 0 15px rgba(255, 0, 110, 0.8);
+  box-shadow: 0 0 12px rgba(255, 0, 110, 0.32);
   animation-duration: 1s;
   width: 10px;
   height: 10px;

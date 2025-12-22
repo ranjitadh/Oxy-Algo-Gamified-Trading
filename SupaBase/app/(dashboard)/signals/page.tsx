@@ -11,6 +11,8 @@ export default function SignalsPage() {
   const [signals, setSignals] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'ALL' | 'DAILY' | 'WEEKLY'>('ALL')
+  const [visibleCount, setVisibleCount] = useState(6)
+  const [activeSummary, setActiveSummary] = useState<string | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
@@ -25,6 +27,9 @@ export default function SignalsPage() {
 
   useEffect(() => {
     if (!user) return
+
+    // Reset visible signals when filter changes or user changes
+    setVisibleCount(6)
 
     let channel: RealtimeChannel | null = null
 
@@ -158,7 +163,7 @@ export default function SignalsPage() {
       </div>
 
       {/* Signals Grid */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 items-stretch">
         {filteredSignals.length === 0 ? (
           <div className="col-span-full">
             <div className="glass-strong rounded-2xl p-12 text-center border border-neon-cyan/20">
@@ -168,72 +173,88 @@ export default function SignalsPage() {
             </div>
           </div>
         ) : (
-          filteredSignals.map((signal, index) => (
+          filteredSignals.slice(0, visibleCount).map((signal, index) => (
             <div 
               key={signal.id} 
-              className="group relative glass-strong rounded-2xl p-6 border border-neon-cyan/30 shadow-neon-cyan hover:shadow-neon-cyan hover:border-neon-cyan transition-all duration-300 overflow-hidden animate-fade-in"
+              className="group relative glass-strong rounded-2xl p-6 border border-neon-cyan/30 shadow-neon-cyan hover:shadow-neon-cyan hover:border-neon-cyan transition-all duration-300 overflow-hidden animate-fade-in h-full flex flex-col"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="liquid-crystal absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"></div>
-              <div className="relative z-10">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center space-x-3">
-                    <div className="text-2xl font-bold text-white group-hover:text-neon-cyan transition-colors">
-                      {signal.symbol}
-                    </div>
-                    <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold border ${getDirectionBg(signal.direction)} ${getDirectionColor(signal.direction)}`}>
-                      {signal.direction}
-                    </span>
-                  </div>
-                  <span className="px-3 py-1 text-xs font-bold rounded-lg glass border border-neon-purple/30 text-neon-purple">
-                    {signal.signal_type}
-                  </span>
-                </div>
-
-                {/* Signal Details */}
-                <div className="space-y-3 mb-5">
-                  <div className="flex justify-between items-center p-3 glass rounded-lg border border-gray-700/30">
-                    <span className="text-sm text-gray-400">Entry:</span>
-                    <span className="text-white font-bold font-mono text-sm">{signal.entry_price?.toFixed(5)}</span>
-                  </div>
-                  
-                  {signal.take_profit && (
-                    <div className="flex justify-between items-center p-3 glass rounded-lg border border-neon-green/30 bg-green-900/10">
-                      <span className="text-sm text-gray-400">Take Profit:</span>
-                      <span className="text-neon-green font-bold font-mono text-sm">📈 {signal.take_profit.toFixed(5)}</span>
-                    </div>
-                  )}
-                  
-                  {signal.stop_loss && (
-                    <div className="flex justify-between items-center p-3 glass rounded-lg border border-red-500/30 bg-red-900/10">
-                      <span className="text-sm text-gray-400">Stop Loss:</span>
-                      <span className="text-red-400 font-bold font-mono text-sm">🛑 {signal.stop_loss.toFixed(5)}</span>
-                    </div>
-                  )}
-                  
-                  {signal.confidence_score !== null && (
-                    <div className={`flex justify-between items-center p-3 glass rounded-lg border ${getConfidenceBg(signal.confidence_score)}`}>
-                      <span className="text-sm text-gray-400">Confidence:</span>
-                      <span className={`font-bold text-sm ${getConfidenceColor(signal.confidence_score)}`}>
-                        {signal.confidence_score}%
+              <div className="relative z-10 flex flex-col h-full">
+                {/* Header + Body */} 
+                <div className="flex-1 flex flex-col">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center space-x-3">
+                      <div className="text-2xl font-bold text-white group-hover:text-neon-cyan transition-colors">
+                        {signal.symbol}
+                      </div>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold border ${getDirectionBg(signal.direction)} ${getDirectionColor(signal.direction)}`}>
+                        {signal.direction}
                       </span>
                     </div>
-                  )}
-                </div>
+                    <span className="px-3 py-1 text-xs font-bold rounded-lg glass border border-neon-purple/30 text-neon-purple">
+                      {signal.signal_type}
+                    </span>
+                  </div>
 
-                {/* Notes */}
-                {signal.notes && (
-                  <div className="mt-5 pt-5 border-t border-gray-700/30">
-                    <div className="flex items-start space-x-2">
-                      <span className="text-lg">🔎</span>
-                      <div>
-                        <div className="text-xs text-gray-400 mb-1 font-medium uppercase tracking-wide">Summary</div>
-                        <p className="text-sm text-gray-300 leading-relaxed">{signal.notes}</p>
+                  {/* Signal Details */}
+                  <div className="space-y-3 mb-5">
+                    <div className="flex justify-between items-center p-3 glass rounded-lg border border-gray-700/30">
+                      <span className="text-sm text-gray-400">Entry:</span>
+                      <span className="text-white font-bold font-mono text-sm">{signal.entry_price?.toFixed(5)}</span>
+                    </div>
+                    
+                    {signal.take_profit && (
+                      <div className="flex justify-between items-center p-3 glass rounded-lg border border-neon-green/30 bg-green-900/10">
+                        <span className="text-sm text-gray-400">Take Profit:</span>
+                        <span className="text-neon-green font-bold font-mono text-sm">📈 {signal.take_profit.toFixed(5)}</span>
+                      </div>
+                    )}
+                    
+                    {signal.stop_loss && (
+                      <div className="flex justify-between items-center p-3 glass rounded-lg border border-red-500/30 bg-red-900/10">
+                        <span className="text-sm text-gray-400">Stop Loss:</span>
+                        <span className="text-red-400 font-bold font-mono text-sm">🛑 {signal.stop_loss.toFixed(5)}</span>
+                      </div>
+                    )}
+                    
+                    {signal.confidence_score !== null && (
+                      <div className={`flex justify-between items-center p-3 glass rounded-lg border ${getConfidenceBg(signal.confidence_score)}`}>
+                        <span className="text-sm text-gray-400">Confidence:</span>
+                        <span className={`font-bold text-sm ${getConfidenceColor(signal.confidence_score)}`}>
+                          {signal.confidence_score}%
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Notes */}
+                  {signal.notes && (
+                    <div className="mt-5 pt-5 border-t border-gray-700/30">
+                      <div className="flex flex-col space-y-2">
+                        <div className="flex items-start space-x-2">
+                          <span className="text-lg">🔎</span>
+                          <div>
+                            <div className="text-xs text-gray-400 mb-1 font-medium uppercase tracking-wide">
+                              Summary
+                            </div>
+                            <p className="text-sm text-gray-300 leading-relaxed signal-summary">
+                              {signal.notes}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setActiveSummary(signal.notes)}
+                          className="self-start text-xs font-semibold text-neon-cyan hover:text-neon-blue transition-colors underline-offset-2 hover:underline"
+                        >
+                          View full summary
+                        </button>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
 
                 {/* Footer */}
                 <div className="mt-5 pt-5 border-t border-gray-700/30 flex items-center justify-between text-xs text-gray-500">
@@ -251,6 +272,42 @@ export default function SignalsPage() {
           ))
         )}
       </div>
+
+      {/* Load More */}
+      {visibleCount < filteredSignals.length && (
+        <div className="flex justify-center mt-2">
+          <button
+            type="button"
+            onClick={() => setVisibleCount((prev) => prev + 6)}
+            className="px-6 py-2.5 bg-gradient-to-r from-neon-cyan to-neon-blue text-white rounded-lg text-sm font-semibold hover:shadow-neon-cyan transition-all duration-300 border border-neon-cyan/40"
+          >
+            Load More Signals
+          </button>
+        </div>
+      )}
+
+      {/* Full Summary Modal */}
+      {activeSummary && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="glass-strong max-w-xl w-full max-h-[80vh] overflow-y-auto rounded-2xl border border-neon-cyan/40 shadow-neon-cyan relative">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700/60">
+              <h2 className="text-sm font-semibold text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-purple">
+                Full Signal Summary
+              </h2>
+              <button
+                type="button"
+                onClick={() => setActiveSummary(null)}
+                className="text-gray-400 hover:text-white text-sm px-2 py-1 rounded-md hover:bg-gray-800/60 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+            <div className="px-6 py-4 text-sm text-gray-200 leading-relaxed whitespace-pre-line">
+              {activeSummary}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -49,7 +49,8 @@ export default function NavigationProgress() {
         className="h-full bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-pink transition-all duration-300 ease-out"
         style={{
           width: `${progress}%`,
-          boxShadow: `0 0 10px rgba(0, 255, 255, 0.6), 0 0 20px rgba(176, 38, 255, 0.4), 0 0 30px rgba(255, 0, 110, 0.2)`,
+          // Softer glow (~60% reduced intensity)
+          boxShadow: `0 0 8px rgba(0, 255, 255, 0.24), 0 0 16px rgba(176, 38, 255, 0.16), 0 0 24px rgba(255, 0, 110, 0.08)`,
           transition: 'width 0.2s ease-out',
         }}
       />

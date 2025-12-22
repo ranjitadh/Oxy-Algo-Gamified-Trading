@@ -34,12 +34,13 @@ const config: Config = {
         'gradient-dark': 'linear-gradient(135deg, #0a0a0a, #1a0a1a, #0a0a1a)',
       },
       boxShadow: {
-        'neon-cyan': '0 0 10px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3), 0 0 30px rgba(0, 255, 255, 0.2)',
-        'neon-purple': '0 0 10px rgba(176, 38, 255, 0.5), 0 0 20px rgba(176, 38, 255, 0.3), 0 0 30px rgba(176, 38, 255, 0.2)',
-        'neon-pink': '0 0 10px rgba(255, 0, 110, 0.5), 0 0 20px rgba(255, 0, 110, 0.3), 0 0 30px rgba(255, 0, 110, 0.2)',
-        'neon-blue': '0 0 10px rgba(0, 150, 255, 0.5), 0 0 20px rgba(0, 150, 255, 0.3), 0 0 30px rgba(0, 150, 255, 0.2)',
-        'neon-green': '0 0 10px rgba(0, 255, 136, 0.5), 0 0 20px rgba(0, 255, 136, 0.3), 0 0 30px rgba(0, 255, 136, 0.2)',
-        'glow-lg': '0 0 20px rgba(0, 255, 255, 0.4), 0 0 40px rgba(176, 38, 255, 0.3)',
+        // Reduced glow intensity (~60% less) to avoid overpowering UI
+        'neon-cyan': '0 0 8px rgba(0, 255, 255, 0.2), 0 0 16px rgba(0, 255, 255, 0.12), 0 0 24px rgba(0, 255, 255, 0.08)',
+        'neon-purple': '0 0 8px rgba(176, 38, 255, 0.2), 0 0 16px rgba(176, 38, 255, 0.12), 0 0 24px rgba(176, 38, 255, 0.08)',
+        'neon-pink': '0 0 8px rgba(255, 0, 110, 0.2), 0 0 16px rgba(255, 0, 110, 0.12), 0 0 24px rgba(255, 0, 110, 0.08)',
+        'neon-blue': '0 0 8px rgba(0, 150, 255, 0.2), 0 0 16px rgba(0, 150, 255, 0.12), 0 0 24px rgba(0, 150, 255, 0.08)',
+        'neon-green': '0 0 8px rgba(0, 255, 136, 0.2), 0 0 16px rgba(0, 255, 136, 0.12), 0 0 24px rgba(0, 255, 136, 0.08)',
+        'glow-lg': '0 0 16px rgba(0, 255, 255, 0.16), 0 0 32px rgba(176, 38, 255, 0.12)',
       },
       backdropBlur: {
         xs: '2px',
