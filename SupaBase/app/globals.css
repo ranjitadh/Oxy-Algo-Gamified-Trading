@@ -5,6 +5,11 @@
 :root {
   --background: #0a0a0a;
   --foreground: #ededed;
+  --neon-cyan: #00ffff;
+  --neon-purple: #b026ff;
+  --neon-pink: #ff006e;
+  --neon-blue: #0096ff;
+  --neon-green: #00ff88;
 }
 
 body {
@@ -13,11 +18,425 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
+  overflow-x: hidden;
+}
+
+/* Animated background gradient */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.8;
+    filter: brightness(1.2);
+  }
+}
+
+@keyframes liquid-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes neon-flicker {
+  0%, 100% {
+    text-shadow: 
+      0 0 5px currentColor,
+      0 0 10px currentColor,
+      0 0 15px currentColor,
+      0 0 20px currentColor;
+  }
+  50% {
+    text-shadow: 
+      0 0 2px currentColor,
+      0 0 5px currentColor,
+      0 0 8px currentColor,
+      0 0 12px currentColor;
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Neon text effects */
+.neon-text {
+  text-shadow: 
+    0 0 5px currentColor,
+    0 0 10px currentColor,
+    0 0 15px currentColor,
+    0 0 20px currentColor;
+}
+
+.neon-text-flicker {
+  animation: neon-flicker 3s ease-in-out infinite;
+}
+
+/* Glassmorphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Liquid crystal effect */
+.liquid-crystal {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 255, 0.1) 0%,
+    rgba(176, 38, 255, 0.1) 50%,
+    rgba(255, 0, 110, 0.1) 100%
+  );
+  background-size: 200% 200%;
+  animation: liquid-shimmer 3s ease infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-crystal::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 70%
+  );
+  animation: liquid-shimmer 4s linear infinite;
+}
+
+/* Glowing border effect */
+.glow-border {
+  position: relative;
+}
+
+.glow-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    #00ffff,
+    #b026ff,
+    #ff006e,
+    #0096ff
+  );
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: source-out;
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0.6;
+  animation: gradient-shift 4s ease infinite;
+  background-size: 200% 200%;
+  z-index: -1;
+}
+
+/* Animated grid background */
+.animated-grid {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.03;
+  background-image: 
+    linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: float 20s ease-in-out infinite;
+}
+
+/* Particle effect background */
+.particle-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.particle-bg::before,
+.particle-bg::after {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.2;
+}
+
+.particle-bg::before {
+  background: #00ffff;
+  top: 10%;
+  left: 10%;
+  animation: float 15s ease-in-out infinite;
+}
+
+.particle-bg::after {
+  background: #b026ff;
+  bottom: 10%;
+  right: 10%;
+  animation: float 20s ease-in-out infinite reverse;
+}
+
+/* Signal summary clamp for equal card heights */
+.signal-summary {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Gaming Trading Platform Loader Animations */
+@keyframes rotate-cube-3d {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg);
+  }
+  25% {
+    transform: rotateX(90deg) rotateY(90deg);
+  }
+  50% {
+    transform: rotateX(180deg) rotateY(180deg);
+  }
+  75% {
+    transform: rotateX(270deg) rotateY(270deg);
+  }
+  100% {
+    transform: rotateX(360deg) rotateY(360deg);
+  }
+}
+
+@keyframes trading-bars {
+  0%, 100% {
+    transform: scaleY(0.3);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes chart-pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes orbit-rings {
+  0% {
+    transform: rotate(0deg) translateX(40px) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateX(40px) rotate(-360deg);
+  }
+}
+
+@keyframes trading-wave {
+  0%, 100% {
+    transform: translateY(0) scaleY(1);
+  }
+  50% {
+    transform: translateY(-10px) scaleY(1.2);
+  }
+}
+
+/* 3D Trading Cube Loader */
+.trading-cube-loader {
+  width: 60px;
+  height: 60px;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: rotate-cube-3d 2s infinite linear;
+}
+
+.trading-cube-loader .cube-face {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.trading-cube-loader .cube-face:nth-child(1) {
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 150, 255, 0.2));
+  border-color: #00ffff;
+  transform: rotateY(0deg) translateZ(30px);
+  box-shadow: 0 0 16px rgba(0, 255, 255, 0.2);
+}
+
+.trading-cube-loader .cube-face:nth-child(2) {
+  background: linear-gradient(135deg, rgba(176, 38, 255, 0.2), rgba(255, 0, 110, 0.2));
+  border-color: #b026ff;
+  transform: rotateY(90deg) translateZ(30px);
+  box-shadow: 0 0 16px rgba(176, 38, 255, 0.2);
+}
+
+.trading-cube-loader .cube-face:nth-child(3) {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 255, 255, 0.2));
+  border-color: #00ff88;
+  transform: rotateY(180deg) translateZ(30px);
+  box-shadow: 0 0 16px rgba(0, 255, 136, 0.2);
+}
+
+.trading-cube-loader .cube-face:nth-child(4) {
+  background: linear-gradient(135deg, rgba(255, 0, 110, 0.2), rgba(176, 38, 255, 0.2));
+  border-color: #ff006e;
+  transform: rotateY(-90deg) translateZ(30px);
+  box-shadow: 0 0 16px rgba(255, 0, 110, 0.2);
+}
+
+.trading-cube-loader .cube-face:nth-child(5) {
+  background: linear-gradient(135deg, rgba(0, 150, 255, 0.2), rgba(0, 255, 255, 0.2));
+  border-color: #0096ff;
+  transform: rotateX(90deg) translateZ(30px);
+  box-shadow: 0 0 16px rgba(0, 150, 255, 0.2);
+}
+
+.trading-cube-loader .cube-face:nth-child(6) {
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 255, 136, 0.2));
+  border-color: #00ffff;
+  transform: rotateX(-90deg) translateZ(30px);
+  box-shadow: 0 0 16px rgba(0, 255, 255, 0.2);
+}
+
+/* Trading Bars Loader */
+.trading-bars-loader {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 40px;
+}
+
+.trading-bars-loader .bar {
+  width: 6px;
+  background: linear-gradient(to top, #00ffff, #b026ff);
+  border-radius: 2px;
+  animation: trading-bars 1.2s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.2);
+}
+
+.trading-bars-loader .bar:nth-child(1) { animation-delay: 0s; height: 30%; }
+.trading-bars-loader .bar:nth-child(2) { animation-delay: 0.1s; height: 50%; }
+.trading-bars-loader .bar:nth-child(3) { animation-delay: 0.2s; height: 70%; }
+.trading-bars-loader .bar:nth-child(4) { animation-delay: 0.3s; height: 100%; }
+.trading-bars-loader .bar:nth-child(5) { animation-delay: 0.4s; height: 80%; }
+.trading-bars-loader .bar:nth-child(6) { animation-delay: 0.5s; height: 60%; }
+.trading-bars-loader .bar:nth-child(7) { animation-delay: 0.6s; height: 40%; }
+
+/* Orbiting Rings Loader */
+.orbiting-rings-loader {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.orbiting-rings-loader .ring {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid;
+  animation: orbit-rings 2s linear infinite;
+}
+
+.orbiting-rings-loader .ring:nth-child(1) {
+  border-color: #00ffff;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.32);
+  animation-duration: 2s;
+}
+
+.orbiting-rings-loader .ring:nth-child(2) {
+  border-color: #b026ff;
+  box-shadow: 0 0 12px rgba(176, 38, 255, 0.32);
+  animation-duration: 1.5s;
+  animation-direction: reverse;
+  width: 15px;
+  height: 15px;
+  left: calc(50% - 7.5px);
+  top: calc(50% - 7.5px);
+}
+
+.orbiting-rings-loader .ring:nth-child(3) {
+  border-color: #ff006e;
+  box-shadow: 0 0 12px rgba(255, 0, 110, 0.32);
+  animation-duration: 1s;
+  width: 10px;
+  height: 10px;
+  left: calc(50% - 5px);
+  top: calc(50% - 5px);
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  
+  .animate-fade-in {
+    animation: slide-in-up 0.6s ease-out;
+  }
+  
+  .animate-glow {
+    animation: glow-pulse 2s ease-in-out infinite;
   }
 }
 
